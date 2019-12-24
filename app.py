@@ -2,13 +2,13 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from Controllers.ProbeController import bp
+from Controllers.ProbeController import api_routes
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
-app.register_blueprint(bp)
+app.register_blueprint(api_routes, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run()
