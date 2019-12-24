@@ -29,3 +29,5 @@ def insert_probe():
     probe.station = request_body['station']
     db.session.add(probe)
     db.session.commit()
+
+    return ("OK")

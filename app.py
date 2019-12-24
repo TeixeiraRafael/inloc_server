@@ -11,4 +11,4 @@ db = SQLAlchemy(app)
 app.register_blueprint(api_routes, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', debug=True)
