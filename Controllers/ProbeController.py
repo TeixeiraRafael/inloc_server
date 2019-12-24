@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, request, jsonify
+import json
 
 api_routes = Blueprint('api', __name__)
 
@@ -6,11 +7,30 @@ from Models.Probe import *
 
 @api_routes.route('/probe', methods=['GET'])
 def get_all():
-    response = {
-        'Name': 'Rafael',
-        'Age' : 22
-    }
-    return(jsonify(response))
+    query = db.session.query(Probe)
+    response = query.all()
+    result = []
+
+    for r in response:
+        encoded_result = {
+            "id": r.id,
+            "address1": r.address1,
+            "address2": r.address2,
+            "rssi": r.rssi,
+            "payload_name": r.payload_name,
+            "timestamp": r.timestamp,
+            "time_offset": r.time_offset,
+            "station": r.station   
+        }
+        result.append(encoded_result)
+
+    return jsonify(result)
+
+@api_routes.route('/probe/count', methods=['GET'])
+def get_count():
+    query = db.session.query(Probe)
+    response = len(query.all())    
+    return jsonify(response)
 
 @api_routes.route('/probe', methods=['POST'])
 def insert_probe():
