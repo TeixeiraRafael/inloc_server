@@ -8,23 +8,23 @@ from Models.Probe import *
 @api_routes.route('/probe', methods=['GET'])
 def get_all():
     query = db.session.query(Probe)
-    response = query.all()
+    probes = query.all()
     result = []
 
-    for r in response:
-        encoded_result = {
-            "id": r.id,
-            "address1": r.address1,
-            "address2": r.address2,
-            "rssi": r.rssi,
-            "payload_name": r.payload_name,
-            "timestamp": r.timestamp,
-            "time_offset": r.time_offset,
-            "station": r.station   
-        }
-        result.append(encoded_result)
+    for probe in probes:
+        result.append(probe.as_json())
 
     return jsonify(result)
+
+@api_routes.route('/probe/<address_2>', methods=['GET'])
+def get_by_mac(address_2):
+    query = db.session.query(Probe).filter(Probe.address2.like(address_2))
+    probes = query.all()
+    response = []
+    for probe in probes:
+        response.append(probe.as_json())
+    return jsonify(response)
+
 
 @api_routes.route('/probe/count', methods=['GET'])
 def get_count():
@@ -50,4 +50,4 @@ def insert_probe():
     db.session.add(probe)
     db.session.commit()
 
-    return ("OK")
+    return ("OK", 200)
