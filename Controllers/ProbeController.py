@@ -1,7 +1,11 @@
 from flask import Flask, Blueprint, request, jsonify
 import json
+from scapy.all import *
+
+import codecs
 
 api_routes = Blueprint('api', __name__)
+packet_classes = {c.__name__: c for c in scapy.packet.Packet.__subclasses__()}
 
 from Models.Probe import *
 
@@ -35,19 +39,17 @@ def get_count():
 @api_routes.route('/probe', methods=['POST'])
 def insert_probe():
     request_body = request.get_json()
-    probe = Probe()
+    
+    recvd_type_name = request_body['packet_type']
+    recvd_raw_packet_data = request_body['raw_packet_data']
 
-    probe.address1 = request_body['address_1']
-    probe.address2 = request_body['address_2']
-    probe.rssi = request_body['rssi']
-    probe.payload_name = request_body['payload_name']
+    raw_pkt = codecs.decode(recvd_raw_packet_data.encode(), "base64")
 
-    #splitting timestamp and timezone with list operators
-    probe.timestamp = request_body['timestamp'][0:-7]
-    probe.time_offset = request_body['timestamp'][-6:]
-
-    probe.station = request_body['station']
-    db.session.add(probe)
-    db.session.commit()
-
-    return ("OK", 200)
+    try:
+        pkt = packet_classes[recvd_type_name](raw_pkt)
+        pkt.show()
+        return "ohdamn"
+    
+    except KeyError:
+        return "Invalid packet type!"
+    
